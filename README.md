@@ -1,6 +1,7 @@
-# 🧠 NNN – Neural Network Nook
-
-> Build, visualise, and explore neural networks on an infinite interactive canvas.
+<div align="center">
+  <h1>NNN - Neural Network Nook</h1>
+  <p>NN on a canvas.</p>
+</div>
 
 A modern SaaS web application for visually designing and experimenting with neural network architectures. Built with Next.js 15, React Flow, Supabase, and Framer Motion.
 
@@ -44,6 +45,7 @@ cp .env.example .env.local
 ```
 
 Fill in:
+
 ```
 NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
@@ -90,13 +92,13 @@ Open [http://localhost:3000](http://localhost:3000)
 
 ## 🗄 Database Schema
 
-| Table | Description |
-|-------|-------------|
-| `users` | User profiles + preferences |
-| `projects` | Project metadata |
-| `project_data` | Canvas state (JSONB) |
-| `project_collaborators` | Sharing roles |
-| `activity_logs` | Audit trail |
+| Table                   | Description                 |
+| ----------------------- | --------------------------- |
+| `users`                 | User profiles + preferences |
+| `projects`              | Project metadata            |
+| `project_data`          | Canvas state (JSONB)        |
+| `project_collaborators` | Sharing roles               |
+| `activity_logs`         | Audit trail                 |
 
 All tables have Row Level Security enabled.
 
@@ -115,14 +117,14 @@ The app supports **Light**, **Dark**, and **System** themes using `next-themes`.
 
 ## ⌨️ Keyboard Shortcuts
 
-| Shortcut | Action |
-|----------|--------|
-| `⌘/Ctrl + S` | Save project |
-| `⌘/Ctrl + Z` | Undo |
-| `⌘/Ctrl + Shift + Z` | Redo |
-| `F` | Fit view |
-| `Delete / ⌫` | Delete selected |
-| `?` | Show shortcuts modal |
+| Shortcut             | Action               |
+| -------------------- | -------------------- |
+| `⌘/Ctrl + S`         | Save project         |
+| `⌘/Ctrl + Z`         | Undo                 |
+| `⌘/Ctrl + Shift + Z` | Redo                 |
+| `F`                  | Fit view             |
+| `Delete / ⌫`         | Delete selected      |
+| `?`                  | Show shortcuts modal |
 
 ---
 
