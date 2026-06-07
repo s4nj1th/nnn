@@ -1,0 +1,116 @@
+.pageContainer {
+  @apply min-h-screen bg-background text-foreground font-sans;
+}
+
+/* Navbar */
+.header {
+  @apply fixed top-0 left-0 right-0 z-50 transition-all duration-300;
+}
+.headerScrolled {
+  @apply bg-background/90 backdrop-blur-md border-b border-border shadow-sm;
+}
+.headerTransparent {
+  @apply bg-transparent;
+}
+.navContainer {
+  @apply mx-auto max-w-7xl px-6 h-16 flex items-center justify-between;
+}
+.logoLink {
+  @apply flex items-center gap-2.5;
+}
+.logoIcon {
+  @apply w-5 h-5 text-primary;
+}
+.logoText {
+  @apply text-sm font-semibold tracking-tight text-foreground;
+}
+.navLinks {
+  @apply hidden md:flex items-center gap-6;
+}
+.navLink {
+  @apply text-sm text-muted-foreground hover:text-foreground transition-colors;
+}
+.navActions {
+  @apply flex items-center gap-3;
+}
+
+/* Hero Section */
+.heroSection {
+  @apply pt-32 pb-24 px-6;
+}
+.heroContainer {
+  @apply max-w-5xl mx-auto text-center;
+}
+.heroTitle {
+  @apply text-4xl md:text-6xl font-semibold tracking-tight text-foreground mb-6;
+}
+.heroSubtitle {
+  @apply text-lg text-muted-foreground max-w-2xl mx-auto mb-10;
+}
+.heroActions {
+  @apply flex flex-col sm:flex-row gap-4 justify-center items-center mb-16;
+}
+.primaryButton {
+  @apply min-w-[160px];
+}
+.secondaryButton {
+  @apply gap-2 min-w-[160px];
+}
+.buttonIcon {
+  @apply h-4 w-4;
+}
+.screenshotPlaceholder {
+  @apply w-full aspect-[16/9] bg-muted/30 border border-border rounded-xl flex items-center justify-center overflow-hidden;
+}
+.screenshotText {
+  @apply text-muted-foreground text-sm font-medium tracking-widest uppercase opacity-50;
+}
+
+/* Features Section */
+.featuresSection {
+  @apply py-24 px-6 border-t border-border;
+}
+.featuresContainer {
+  @apply mx-auto max-w-7xl;
+}
+.featuresHeader {
+  @apply mb-16;
+}
+.featuresTitle {
+  @apply text-2xl md:text-3xl font-semibold text-foreground mb-4;
+}
+.featuresSubtitle {
+  @apply text-muted-foreground max-w-2xl;
+}
+.featuresGrid {
+  @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12;
+}
+.featureItemTitle {
+  @apply mb-2 text-base font-medium text-foreground;
+}
+.featureItemDesc {
+  @apply text-sm text-muted-foreground leading-relaxed;
+}
+
+/* Footer */
+.footer {
+  @apply border-t border-border py-12 px-6;
+}
+.footerContainer {
+  @apply mx-auto max-w-7xl flex flex-col md:flex-row items-center justify-between gap-6;
+}
+.footerLogo {
+  @apply flex items-center gap-2.5;
+}
+.footerLogoIcon {
+  @apply w-4 h-4 text-primary;
+}
+.footerLogoText {
+  @apply text-sm font-medium text-foreground;
+}
+.footerLinks {
+  @apply flex items-center gap-6;
+}
+.footerLink {
+  @apply text-sm text-muted-foreground hover:text-foreground transition-colors;
+}

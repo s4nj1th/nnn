@@ -1,0 +1,137 @@
+/* ProjectCard */
+.cardContainer {
+    @apply overflow-hidden hover:border-primary/30 hover:shadow-md transition-all duration-200;
+}
+.cardThumbnailLink {
+    @apply block;
+}
+.cardThumbnail {
+    @apply h-32 bg-surface border-b border-border relative overflow-hidden;
+}
+.thumbnailIconWrapper {
+    @apply absolute inset-0 flex items-center justify-center;
+}
+.thumbnailIcon {
+    @apply w-16 h-16 text-primary/20;
+}
+.thumbnailOverlay {
+    @apply absolute inset-0 bg-card/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center;
+}
+.thumbnailBadge {
+    @apply bg-primary text-primary-foreground text-xs font-medium px-3 py-1.5 rounded-full flex items-center gap-1.5;
+}
+.thumbnailBadgeIcon {
+    @apply h-3 w-3;
+}
+.cardContent {
+    @apply p-4;
+}
+.cardHeader {
+    @apply flex items-start justify-between gap-2;
+}
+.cardTitleWrapper {
+    @apply min-w-0 flex-1;
+}
+.cardTitle {
+    @apply text-sm font-semibold text-foreground truncate hover:text-primary transition-colors;
+}
+.cardDesc {
+    @apply text-xs text-muted-foreground mt-0.5 line-clamp-2;
+}
+.cardMenuBtn {
+    @apply flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity;
+}
+.cardMenuBtnIcon {
+    @apply h-4 w-4;
+}
+.cardMenuContent {
+    @apply w-40;
+}
+.cardMenuItem {
+    @apply gap-2 cursor-pointer;
+}
+.cardMenuItemIcon {
+    @apply h-4 w-4;
+}
+.cardMenuItemDelete {
+    @apply gap-2 cursor-pointer text-destructive focus:text-destructive focus:bg-destructive/10;
+}
+.cardMeta {
+    @apply flex items-center gap-2 mt-3;
+}
+.cardMetaItem {
+    @apply text-[10px] text-muted-foreground flex items-center gap-1;
+}
+.cardMetaIcon {
+    @apply h-3 w-3;
+}
+
+/* Empty State */
+.emptyContainer {
+    @apply col-span-full flex flex-col items-center justify-center py-24 text-center;
+}
+.emptyIconWrapper {
+    @apply w-16 h-16 rounded-2xl bg-secondary flex items-center justify-center mb-4;
+}
+.emptyIcon {
+    @apply h-8 w-8 text-muted-foreground;
+}
+.emptyTitle {
+    @apply text-base font-semibold text-foreground mb-2;
+}
+.emptyDesc {
+    @apply text-sm text-muted-foreground mb-6 max-w-xs;
+}
+.emptyBtn {
+    @apply gap-2;
+}
+.emptyBtnIcon {
+    @apply h-4 w-4;
+}
+
+/* Dashboard Page */
+.pageContainer {
+    @apply p-6 md:p-8 max-w-7xl mx-auto;
+}
+.pageHeader {
+    @apply mb-8;
+}
+.pageTitle {
+    @apply text-2xl font-bold text-foreground mb-1;
+}
+.pageSubtitle {
+    @apply text-muted-foreground text-sm;
+}
+.actionBar {
+    @apply flex items-center gap-3 mb-6;
+}
+.searchWrapper {
+    @apply relative flex-1 max-w-sm;
+}
+.searchIcon {
+    @apply absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none;
+}
+.searchInput {
+    @apply w-full h-9 pl-9 pr-3 rounded-md border border-input bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring;
+}
+.newBtn {
+    @apply gap-2;
+}
+.newBtnIcon {
+    @apply h-4 w-4;
+}
+.loadingWrapper {
+    @apply flex items-center justify-center py-24;
+}
+.loadingIcon {
+    @apply h-6 w-6 text-muted-foreground animate-spin;
+}
+.projectsGrid {
+    @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4;
+}
+.dialogContent {
+    @apply max-w-sm;
+}
+.dialogFooter {
+    @apply gap-2 sm:gap-0;
+}
