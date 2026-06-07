@@ -5,30 +5,17 @@
 
 A modern SaaS web application for visually designing and experimenting with neural network architectures. Built with Next.js 15, React Flow, Supabase, and Framer Motion.
 
----
+## Screenshots
 
-## ✨ Features
 
-- **Infinite Canvas** — pan, zoom, multi-select, minimap, snap-to-grid
-- **Neuron Types** — Input, Hidden, Output nodes with full property editing
-- **Connection Weights** — Visual weight thickness + colour (positive yellow, negative red)
-- **Forward Propagation** — Animated step-by-step or auto-run simulation
-- **Layer Management** — Group neurons into named layers
-- **Projects** — Create, save, duplicate, share, and export projects
-- **Example Templates** — 6 pre-built networks (XOR, MLP, CNN, etc.)
-- **Dark / Light / System Theme** — Synced to Supabase per user
-- **Authentication** — Email/password via Supabase Auth
-- **Keyboard Shortcuts** — Full shortcut palette
 
----
-
-## 🚀 Quick Start
+## Quick Start
 
 ### 1. Clone & Install
 
 ```bash
-git clone https://github.com/your-org/neural-network-nook
-cd neural-network-nook
+git clone https://github.com/s4nj1th/nnn
+cd nnn
 npm install
 ```
 
@@ -59,38 +46,7 @@ npm run dev
 
 Open [http://localhost:3000](http://localhost:3000)
 
----
-
-## 🗂 Project Structure
-
-```
-/app
-  /api              API routes (projects, canvas, examples, auth)
-  /dashboard        Authenticated dashboard + settings
-  /editor/[id]      Full canvas editor
-  /examples         Template gallery
-  /login            Auth pages
-  /signup
-/components
-  /canvas           React Flow nodes, edges, toolbar, panels
-  /theme            ThemeProvider, ThemeToggle, ThemeSync
-  /ui               shadcn/ui base components
-/features
-  /auth             AuthProvider
-/hooks              Custom React hooks
-/lib
-  /supabase         Server + client helpers
-  templates.ts      6 pre-built example networks
-  utils.ts          Activation functions, helpers
-/store              Zustand stores (auth, canvas, simulation, ui, project)
-/types              TypeScript types
-/supabase
-  /migrations       SQL migration scripts
-```
-
----
-
-## 🗄 Database Schema
+## Database Schema
 
 | Table                   | Description                 |
 | ----------------------- | --------------------------- |
@@ -102,9 +58,7 @@ Open [http://localhost:3000](http://localhost:3000)
 
 All tables have Row Level Security enabled.
 
----
-
-## 🎨 Theme System
+## Theme System
 
 The app supports **Light**, **Dark**, and **System** themes using `next-themes`.
 
@@ -113,32 +67,7 @@ The app supports **Light**, **Dark**, and **System** themes using `next-themes`.
 - CSS custom properties for all design tokens
 - Smooth 200ms transitions, no flash on load
 
----
-
-## ⌨️ Keyboard Shortcuts
-
-| Shortcut             | Action               |
-| -------------------- | -------------------- |
-| `⌘/Ctrl + S`         | Save project         |
-| `⌘/Ctrl + Z`         | Undo                 |
-| `⌘/Ctrl + Shift + Z` | Redo                 |
-| `F`                  | Fit view             |
-| `Delete / ⌫`         | Delete selected      |
-| `?`                  | Show shortcuts modal |
-
----
-
-## 🚢 Deploy to Vercel
-
-```bash
-vercel --prod
-```
-
-Set the same environment variables in your Vercel project settings.
-
----
-
-## 🛠 Tech Stack
+## Tech Stack
 
 - **Framework** — Next.js 15 App Router
 - **UI** — React 19, Tailwind CSS, shadcn/ui, Lucide Icons
@@ -149,8 +78,6 @@ Set the same environment variables in your Vercel project settings.
 - **Forms** — React Hook Form + Zod
 - **Theme** — next-themes
 
----
+## License
 
-## 📄 License
-
-MIT
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
