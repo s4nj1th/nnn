@@ -22,15 +22,13 @@ function Navbar() {
         <header
             className={cn(
                 styles.header,
-                scrolled ? styles.headerScrolled : styles.headerTransparent
+                scrolled ? styles.headerScrolled : styles.headerTransparent,
             )}
         >
             <nav className={styles.navContainer} aria-label="Main navigation">
                 <Link href="/" className={styles.logoLink}>
                     <Brain className={styles.logoIcon} />
-                    <span className={styles.logoText}>
-                        Neural Network Nook
-                    </span>
+                    <span className={styles.logoText}>Neural Network Nook</span>
                 </Link>
 
                 <div className={styles.navLinks}>
@@ -124,9 +122,16 @@ export default function LandingPage() {
                         transition={{ duration: 0.5, delay: 0.3 }}
                         className={styles.screenshotPlaceholder}
                     >
-                        <p className={styles.screenshotText}>
-                            [ Screenshot Placeholder ]
-                        </p>
+                        <img
+                            src="/screenshot-light.png"
+                            alt="App screenshot"
+                            className={`${styles.screenshotImage} block dark:hidden`}
+                        />
+                        <img
+                            src="/screenshot-dark.png"
+                            alt="App screenshot"
+                            className={`${styles.screenshotImage} hidden dark:block`}
+                        />
                     </motion.div>
                 </div>
             </section>
