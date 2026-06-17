@@ -7,7 +7,12 @@ A modern SaaS web application for visually designing and experimenting with neur
 
 ## Screenshots
 
-
+<div align="center">
+    <picture >
+        <source media="(prefers-color-scheme: dark)" srcset="public/screenshot-dark.png" />
+        <img src="public/screenshot-light.png" alt="App screenshot" width="400"/>
+    </picture>
+</div>
 
 ## Quick Start
 
