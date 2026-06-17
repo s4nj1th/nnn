@@ -4,12 +4,7 @@ import { useState, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import {
-    Play,
-    Network,
-    Brain,
-    ChevronRight,
-} from "lucide-react";
+import { Play, Network, Brain, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { BackButton } from "@/components/ui/back-button";
 import { Badge } from "@/components/ui/badge";
@@ -172,7 +167,7 @@ function ExampleGallery() {
                                 )}
                             >
                                 {/* Preview */}
-                                <div className="relative h-40 bg-gradient-to-br from-primary/5 via-surface to-surface-secondary border-b border-border overflow-hidden">
+                                <div className="relative h-40 border-b border-border overflow-hidden">
                                     <div className="absolute inset-0 flex items-center justify-center">
                                         <Network className="w-20 h-20 text-primary/15" />
                                     </div>
