@@ -30,7 +30,10 @@ export const useProjectStore = create<ProjectState>()(
       setProjects: (projects) => set({ projects }),
 
       addProject: (project) =>
-        set((state) => ({ projects: [project, ...state.projects] })),
+        set((state) => {
+          if (state.projects.some((p) => p.id === project.id)) return state;
+          return { projects: [project, ...state.projects] };
+        }),
 
       updateProject: (id, data) =>
         set((state) => ({
@@ -53,9 +56,12 @@ export const useProjectStore = create<ProjectState>()(
 
       getFilteredProjects: () => {
         const { projects, searchQuery } = get();
-        if (!searchQuery.trim()) return projects;
+        // deduplicate just in case there are duplicates in persisted state
+        const uniqueProjects = Array.from(new Map(projects.map(p => [p.id, p])).values());
+        
+        if (!searchQuery.trim()) return uniqueProjects;
         const q = searchQuery.toLowerCase();
-        return projects.filter(
+        return uniqueProjects.filter(
           (p) =>
             p.title.toLowerCase().includes(q) ||
             (p.description?.toLowerCase().includes(q) ?? false)

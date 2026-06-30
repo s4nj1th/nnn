@@ -41,6 +41,7 @@ interface CanvasEditorInnerProps {
     projectId: string;
     projectTitle: string;
     onSave?: () => Promise<void>;
+    onRename?: (newTitle: string) => void;
     isSaving?: boolean;
 }
 
@@ -48,6 +49,7 @@ function CanvasEditorInner({
     projectId,
     projectTitle,
     onSave,
+    onRename,
     isSaving,
 }: CanvasEditorInnerProps) {
     const { resolvedTheme } = useTheme();
@@ -216,6 +218,7 @@ function CanvasEditorInner({
                 isSaving={isSaving}
                 onSave={onSave}
                 onAddNeuron={addNeuron}
+                onRename={onRename}
             />
 
             <div ref={reactFlowWrapper} className="w-full h-full">
@@ -254,11 +257,11 @@ function CanvasEditorInner({
                         <Background
                             variant={BackgroundVariant.Dots}
                             gap={24}
-                            size={1}
+                            size={2}
                             color={
                                 isDark
-                                    ? "rgba(255,255,255,0.08)"
-                                    : "rgba(0,0,0,0.08)"
+                                    ? "hsl(220 10% 55%)"
+                                    : "hsl(220 9% 60%)"
                             }
                         />
                     )}
@@ -275,6 +278,7 @@ function CanvasEditorInner({
                                 if (type === "output") return "#22c55e";
                                 return "#eab308";
                             }}
+                            nodeStrokeWidth={0}
                             maskColor={
                                 isDark
                                     ? "rgba(0,0,0,0.7)"

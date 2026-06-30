@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, Suspense } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { motion } from "framer-motion";
@@ -13,6 +13,7 @@ import { ThemeToggle } from "@/components/theme/theme-toggle";
 import { EXAMPLE_TEMPLATES } from "@/lib/templates";
 import { useAuthStore } from "@/store/auth-store";
 import { useUIStore } from "@/store/ui-store";
+import { generateAndStoreThumbnail, getStoredThumbnail } from "@/lib/thumbnail";
 import type { ExampleTemplate } from "@/types";
 import { cn } from "@/lib/utils";
 
@@ -20,9 +21,46 @@ const PENDING_TEMPLATE_KEY = "nnn.pending-example-template";
 
 const difficultyColors = {
     beginner: "success" as const,
-    intermediate: "warning" as const,
-    advanced: "accent" as const,
+    intermediate: "accent" as const,
+    advanced: "warning" as const,
 };
+
+function ExampleThumbnailPreview({ template }: { template: ExampleTemplate }) {
+    const [thumbnail, setThumbnail] = useState<string | null>(null);
+
+    useEffect(() => {
+        let isMounted = true;
+        const cached = getStoredThumbnail(template.id);
+        if (cached) {
+            setThumbnail(cached);
+        } else {
+            // Generate it in the background if it doesn't exist
+            generateAndStoreThumbnail(
+                template.id,
+                template.canvasState.nodes,
+                template.canvasState.edges
+            ).then((dataUrl) => {
+                if (isMounted && dataUrl) {
+                    setThumbnail(dataUrl);
+                }
+            });
+        }
+        return () => {
+            isMounted = false;
+        };
+    }, [template]);
+
+    if (thumbnail) {
+        // eslint-disable-next-line @next/next/no-img-element
+        return <img src={thumbnail} alt={template.title} className="w-full h-full object-cover" />;
+    }
+    
+    return (
+        <div className="absolute inset-0 flex items-center justify-center bg-surface">
+            <Network className="w-20 h-20 text-primary/15 animate-pulse" />
+        </div>
+    );
+}
 
 function ExampleGallery() {
     const router = useRouter();
@@ -138,11 +176,8 @@ function ExampleGallery() {
                                 )}
                             >
                                 {/* Preview */}
-                                <div className="relative h-40 border-b border-border overflow-hidden">
-                                    <div className="absolute inset-0 flex items-center justify-center">
-                                        <Network className="w-20 h-20 text-primary/15" />
-                                    </div>
-                                    <div className="absolute inset-0 bg-gradient-to-t from-card/60 to-transparent" />
+                                <div className="relative h-40 border-b border-border overflow-hidden bg-surface">
+                                    <ExampleThumbnailPreview template={template} />
 
                                     {/* Node count indicator */}
                                     <div className="absolute bottom-3 left-3 flex items-center gap-1.5">

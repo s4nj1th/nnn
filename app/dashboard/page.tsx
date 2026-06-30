@@ -8,25 +8,12 @@ import {
     Plus,
     Search,
     Clock,
-    Globe,
-    Lock,
-    MoreHorizontal,
-    Copy,
-    Trash2,
-    Edit2,
     ExternalLink,
     Network,
     Loader2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuSeparator,
-    DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import {
     Dialog,
     DialogContent,
@@ -38,6 +25,7 @@ import {
 import { useAuthStore } from "@/store/auth-store";
 import { useProjectStore } from "@/store/project-store";
 import { useUIStore } from "@/store/ui-store";
+import { getStoredThumbnail, removeStoredThumbnail } from "@/lib/thumbnail";
 import { formatRelativeTime } from "@/lib/utils";
 import type { Project } from "@/types";
 import styles from "./page.module.css";
@@ -53,6 +41,11 @@ function ProjectCard({
     onDuplicate: (id: string) => void;
 }) {
     const [menuOpen, setMenuOpen] = useState(false);
+    const [thumbnail, setThumbnail] = useState<string | null>(null);
+
+    useEffect(() => {
+        setThumbnail(getStoredThumbnail(project.id));
+    }, [project.id]);
 
     return (
         <motion.div
@@ -69,9 +62,18 @@ function ProjectCard({
                     className={styles.cardThumbnailLink}
                 >
                     <div className={styles.cardThumbnail}>
-                        <div className={styles.thumbnailIconWrapper}>
-                            <Network className={styles.thumbnailIcon} />
-                        </div>
+                        {thumbnail ? (
+                            // eslint-disable-next-line @next/next/no-img-element
+                            <img
+                                src={thumbnail}
+                                alt={`${project.title} thumbnail`}
+                                className={styles.thumbnailImg}
+                            />
+                        ) : (
+                            <div className={styles.thumbnailIconWrapper}>
+                                <Network className={styles.thumbnailIcon} />
+                            </div>
+                        )}
                         <div className={styles.thumbnailOverlay}>
                             <div className={styles.thumbnailBadge}>
                                 <ExternalLink
@@ -83,93 +85,24 @@ function ProjectCard({
                     </div>
                 </Link>
 
-                <div className={styles.cardContent}>
-                    <div className={styles.cardHeader}>
-                        <div className={styles.cardTitleWrapper}>
-                            <Link href={`/editor/${project.id}`}>
+                <Link href={`/editor/${project.id}`}>
+                    <div className={styles.cardContent}>
+                        <div className={styles.cardHeader}>
+                            <div className={styles.cardTitleWrapper}>
                                 <h3 className={styles.cardTitle}>
                                     {project.title}
                                 </h3>
-                            </Link>
-                            {project.description && (
-                                <p className={styles.cardDesc}>
-                                    {project.description}
-                                </p>
-                            )}
+                            </div>
                         </div>
 
-                        <DropdownMenu
-                            open={menuOpen}
-                            onOpenChange={setMenuOpen}
-                        >
-                            <DropdownMenuTrigger asChild>
-                                <Button
-                                    variant="ghost"
-                                    size="icon-sm"
-                                    className={styles.cardMenuBtn}
-                                    aria-label="Project options"
-                                >
-                                    <MoreHorizontal
-                                        className={styles.cardMenuBtnIcon}
-                                    />
-                                </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent
-                                align="end"
-                                className={styles.cardMenuContent}
-                            >
-                                <DropdownMenuItem asChild>
-                                    <Link
-                                        href={`/editor/${project.id}`}
-                                        className={styles.cardMenuItem}
-                                    >
-                                        <Edit2
-                                            className={styles.cardMenuItemIcon}
-                                        />{" "}
-                                        Open
-                                    </Link>
-                                </DropdownMenuItem>
-                                <DropdownMenuItem
-                                    onClick={() => onDuplicate(project.id)}
-                                    className={styles.cardMenuItem}
-                                >
-                                    <Copy className={styles.cardMenuItemIcon} />{" "}
-                                    Duplicate
-                                </DropdownMenuItem>
-                                <DropdownMenuSeparator />
-                                <DropdownMenuItem
-                                    onClick={() => onDelete(project.id)}
-                                    className={styles.cardMenuItemDelete}
-                                >
-                                    <Trash2
-                                        className={styles.cardMenuItemIcon}
-                                    />{" "}
-                                    Delete
-                                </DropdownMenuItem>
-                            </DropdownMenuContent>
-                        </DropdownMenu>
+                        <div className={styles.cardMeta}>
+                            <span className={styles.cardMetaItem}>
+                                <Clock className={styles.cardMetaIcon} />
+                                {formatRelativeTime(project.updatedAt)}
+                            </span>
+                        </div>
                     </div>
-
-                    <div className={styles.cardMeta}>
-                        <span className={styles.cardMetaItem}>
-                            <Clock className={styles.cardMetaIcon} />
-                            {formatRelativeTime(project.updatedAt)}
-                        </span>
-                        <span className={styles.cardMetaItem}>
-                            {project.isPublic ? (
-                                <>
-                                    <Globe className={styles.cardMetaIcon} />{" "}
-                                    Public
-                                </>
-                            ) : (
-                                <>
-                                    <Lock className={styles.cardMetaIcon} />{" "}
-                                    Private
-                                </>
-                            )}
-                        </span>
-                    </div>
-                </div>
+                </Link>
             </Card>
         </motion.div>
     );
@@ -191,7 +124,14 @@ function EmptyState({ hasSearch }: { hasSearch: boolean }) {
                     : "Create your first neural network project to get started."}
             </p>
             {!hasSearch && (
-                <Link href="/editor/new" onClick={() => sessionStorage.removeItem("nnn.pending-example-template")}>
+                <Link
+                    href="/editor/new"
+                    onClick={() =>
+                        sessionStorage.removeItem(
+                            "nnn.pending-example-template",
+                        )
+                    }
+                >
                     <Button
                         variant="accent"
                         size="sm"
@@ -237,6 +177,7 @@ export default function DashboardPage() {
             removeProject(deleteId);
             // Also remove canvas state from local storage
             localStorage.removeItem(`nnn.canvas_state.${deleteId}`);
+            removeStoredThumbnail(deleteId);
             addToast({ type: "success", title: "Project deleted" });
         } catch {
             addToast({ type: "error", title: "Failed to delete project" });
@@ -251,7 +192,7 @@ export default function DashboardPage() {
         if (!original || !user) return;
         try {
             const newId = crypto.randomUUID();
-            
+
             // Create duplicate project
             const newProject: Project = {
                 id: newId,
@@ -265,9 +206,14 @@ export default function DashboardPage() {
             };
 
             // Copy canvas data
-            const originalDataStr = localStorage.getItem(`nnn.canvas_state.${id}`);
+            const originalDataStr = localStorage.getItem(
+                `nnn.canvas_state.${id}`,
+            );
             if (originalDataStr) {
-                localStorage.setItem(`nnn.canvas_state.${newId}`, originalDataStr);
+                localStorage.setItem(
+                    `nnn.canvas_state.${newId}`,
+                    originalDataStr,
+                );
             }
 
             addProject(newProject);
@@ -279,27 +225,9 @@ export default function DashboardPage() {
     };
 
     const filtered = getFilteredProjects();
-    const greeting = profile?.username
-        ? `Hey, ${profile.username}`
-        : "Welcome back";
 
     return (
         <div className={styles.pageContainer}>
-            {/* Header */}
-            <div className={styles.pageHeader}>
-                <motion.div
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                >
-                    <h1 className={styles.pageTitle}>{greeting}</h1>
-                    <p className={styles.pageSubtitle}>
-                        {projects.length === 0
-                            ? "Create your first neural network project."
-                            : `You have ${projects.length} project${projects.length !== 1 ? "s" : ""}.`}
-                    </p>
-                </motion.div>
-            </div>
-
             {/* Actions bar */}
             <div className={styles.actionBar}>
                 <div className={styles.searchWrapper}>
@@ -313,7 +241,14 @@ export default function DashboardPage() {
                         aria-label="Search projects"
                     />
                 </div>
-                <Link href="/editor/new" onClick={() => sessionStorage.removeItem("nnn.pending-example-template")}>
+                <Link
+                    href="/editor/new"
+                    onClick={() =>
+                        sessionStorage.removeItem(
+                            "nnn.pending-example-template",
+                        )
+                    }
+                >
                     <Button
                         variant="accent"
                         size="sm"

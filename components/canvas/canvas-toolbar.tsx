@@ -1,11 +1,11 @@
 'use client';
 
-import { useCallback } from 'react';
+import { useCallback, useState, useRef } from 'react';
 import {
   ZoomIn, ZoomOut, Maximize2,
   Grid3X3, Map, Save, Share2,
   Download, Keyboard, Play, Pause, RotateCcw,
-  Plus,
+  Plus, Pencil, Check,
 } from 'lucide-react';
 import { useReactFlow } from '@xyflow/react';
 import { motion } from 'framer-motion';
@@ -27,6 +27,7 @@ interface CanvasToolbarProps {
   isSaving?: boolean;
   onSave?: () => void;
   onAddNeuron?: (type: 'input' | 'hidden' | 'output') => void;
+  onRename?: (newTitle: string) => void;
 }
 
 function ToolbarButton({
@@ -77,13 +78,36 @@ export function CanvasToolbar({
   isSaving,
   onSave,
   onAddNeuron,
+  onRename,
 }: CanvasToolbarProps) {
   const { zoomIn, zoomOut, fitView } = useReactFlow();
   const { settings, updateSettings, isDirty } = useCanvasStore();
   const { isRunning, setRunning, reset: resetSimulation } = useSimulationStore();
   const { setShortcutsModal, setShareModal, setExportModal } = useUIStore();
+  const [isRenaming, setIsRenaming] = useState(false);
+  const [renameValue, setRenameValue] = useState(projectTitle);
+  const renameInputRef = useRef<HTMLInputElement>(null);
 
   const mod = getModifierKey();
+
+  const startRename = useCallback(() => {
+    setRenameValue(projectTitle);
+    setIsRenaming(true);
+    setTimeout(() => renameInputRef.current?.select(), 10);
+  }, [projectTitle]);
+
+  const commitRename = useCallback(() => {
+    const trimmed = renameValue.trim();
+    if (trimmed && trimmed !== projectTitle) {
+      onRename?.(trimmed);
+    }
+    setIsRenaming(false);
+  }, [renameValue, projectTitle, onRename]);
+
+  const handleRenameKeyDown = useCallback((e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') commitRename();
+    if (e.key === 'Escape') setIsRenaming(false);
+  }, [commitRename]);
 
   const handleFitView = useCallback(() => {
     fitView({ padding: 0.1, duration: 400 });
@@ -112,10 +136,39 @@ export function CanvasToolbar({
         animate={{ y: 0, opacity: 1 }}
         className="nnn-canvas-toolbar"
       >
-        {/* Project title */}
-        <span className="nnn-canvas-toolbar-title">
-          {projectTitle}
-        </span>
+        {/* Project title - inline rename */}
+        {isRenaming ? (
+          <div className="flex items-center gap-1">
+            <input
+              ref={renameInputRef}
+              value={renameValue}
+              onChange={(e) => setRenameValue(e.target.value)}
+              onBlur={commitRename}
+              onKeyDown={handleRenameKeyDown}
+              className="nnn-canvas-toolbar-rename-input"
+              maxLength={80}
+              aria-label="Rename project"
+            />
+            <Button
+              variant="ghost"
+              size="icon-sm"
+              onClick={commitRename}
+              aria-label="Confirm rename"
+            >
+              <Check className="h-3.5 w-3.5 text-primary" />
+            </Button>
+          </div>
+        ) : (
+          <button
+            className="nnn-canvas-toolbar-title group"
+            onClick={startRename}
+            title="Click to rename project"
+            aria-label="Rename project"
+          >
+            {projectTitle}
+            <Pencil className="h-3 w-3 ml-1.5 opacity-0 group-hover:opacity-50 transition-opacity" />
+          </button>
+        )}
         {isDirty && (
           <div className="nnn-canvas-toolbar-dirty" title="Unsaved changes" />
         )}

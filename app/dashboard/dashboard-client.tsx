@@ -7,7 +7,6 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
     Brain,
     LayoutDashboard,
-    FolderOpen,
     BookOpen,
     Settings,
     LogOut,
@@ -33,7 +32,6 @@ import { cn } from "@/lib/utils";
 
 const navItems = [
     { href: "/dashboard", icon: LayoutDashboard, label: "Dashboard" },
-    { href: "/dashboard/projects", icon: FolderOpen, label: "Projects" },
     { href: "/dashboard/examples", icon: BookOpen, label: "Examples" },
     { href: "/dashboard/settings", icon: Settings, label: "Settings" },
 ];
@@ -47,23 +45,6 @@ function SidebarNav({
 }) {
     const pathname = usePathname();
     const router = useRouter();
-    const { user, profile } = useAuthStore();
-
-    const handleReset = () => {
-        if (
-            confirm(
-                "Are you sure you want to clear all data? This cannot be undone.",
-            )
-        ) {
-            localStorage.clear();
-            sessionStorage.clear();
-            window.location.href = "/";
-        }
-    };
-
-    const initials = profile?.username
-        ? profile.username.slice(0, 2).toUpperCase()
-        : (user?.email?.slice(0, 2).toUpperCase() ?? "NN");
 
     return (
         <aside
@@ -175,74 +156,6 @@ function SidebarNav({
                     );
                 })}
             </nav>
-
-            <Separator />
-
-            {/* User section */}
-            <div className="p-2">
-                <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                        <button
-                            className={cn(
-                                "flex items-center gap-2.5 w-full rounded-lg px-2 py-2 hover:bg-secondary transition-colors",
-                                collapsed && "justify-center",
-                            )}
-                            aria-label="User menu"
-                        >
-                            <Avatar className="w-7 h-7 flex-shrink-0">
-                                <AvatarImage
-                                    src={profile?.avatarUrl ?? undefined}
-                                />
-                                <AvatarFallback className="text-xs">
-                                    {initials}
-                                </AvatarFallback>
-                            </Avatar>
-                            {!collapsed && (
-                                <div className="flex-1 text-left overflow-hidden">
-                                    <p className="text-xs font-medium text-foreground truncate">
-                                        {profile?.username ??
-                                            user?.email?.split("@")[0]}
-                                    </p>
-                                    <p className="text-[10px] text-muted-foreground truncate">
-                                        {user?.email}
-                                    </p>
-                                </div>
-                            )}
-                        </button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent
-                        align="end"
-                        side="top"
-                        className="w-48"
-                    >
-                        <DropdownMenuLabel className="font-normal">
-                            <p className="text-xs font-medium">
-                                {profile?.username ?? "My Account"}
-                            </p>
-                            <p className="text-[10px] text-muted-foreground truncate">
-                                {user?.email}
-                            </p>
-                        </DropdownMenuLabel>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuItem asChild>
-                            <Link
-                                href="/dashboard/settings"
-                                className="gap-2 cursor-pointer"
-                            >
-                                <User className="h-4 w-4" /> Profile
-                            </Link>
-                        </DropdownMenuItem>
-                        <ThemeToggle />
-                        <DropdownMenuItem
-                            onClick={handleReset}
-                            destructive
-                            className="gap-2 cursor-pointer"
-                        >
-                            <LogOut className="h-4 w-4" /> Clear All Data
-                        </DropdownMenuItem>
-                    </DropdownMenuContent>
-                </DropdownMenu>
-            </div>
         </aside>
     );
 }

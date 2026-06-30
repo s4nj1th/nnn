@@ -58,13 +58,6 @@ export default function SettingsPage() {
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
             >
-                <h1 className="text-2xl font-bold text-foreground mb-1">
-                    Settings
-                </h1>
-                <p className="text-sm text-muted-foreground mb-8">
-                    Manage your account and preferences
-                </p>
-
                 <div className="space-y-6">
                     {/* Appearance */}
                     <Card>
@@ -105,8 +98,6 @@ export default function SettingsPage() {
                                     )}
                                 </div>
                             </div>
-
-                            <Separator />
                         </CardContent>
                     </Card>
 

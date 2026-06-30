@@ -5,10 +5,12 @@ import { useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
 import { CanvasEditor } from "@/components/canvas/canvas-editor";
 import { ShortcutsModal } from "@/components/canvas/shortcuts-modal";
+import { ExportModal } from "@/components/canvas/export-modal";
 import { useCanvasStore } from "@/store/canvas-store";
 import { useProjectStore } from "@/store/project-store";
 import { useAuthStore } from "@/store/auth-store";
 import { useUIStore } from "@/store/ui-store";
+import { generateAndStoreThumbnail } from "@/lib/thumbnail";
 import type { CanvasState } from "@/types";
 
 const PENDING_TEMPLATE_KEY = "nnn.pending-example-template";
@@ -66,6 +68,7 @@ export default function EditorPage({ params }: EditorPageProps) {
     const isNewProject = projectId === "new";
 
     // Load or create project
+    const hasInitialized = useRef(false);
     useEffect(() => {
         if (!user) {
             return;
@@ -75,6 +78,8 @@ export default function EditorPage({ params }: EditorPageProps) {
 
         const load = async () => {
             if (isNewProject) {
+                if (hasInitialized.current) return;
+                hasInitialized.current = true;
                 let pendingTemplate: {
                     title?: string;
                     description?: string;
@@ -203,6 +208,13 @@ export default function EditorPage({ params }: EditorPageProps) {
                 throw new Error("Failed to save canvas state to localStorage");
             }
 
+            // Generate and store thumbnail (non-blocking, best-effort)
+            generateAndStoreThumbnail(
+                currentProject.id,
+                nodes,
+                edges,
+            ).catch(() => {/* ignore thumbnail failures */});
+
             // Update project timestamp
             updateProject(currentProject.id, { updatedAt: new Date().toISOString() });
 
@@ -238,6 +250,30 @@ export default function EditorPage({ params }: EditorPageProps) {
         return () => clearTimeout(timer);
     }, [isDirty, isNewProject, handleSave]);
 
+    // Capture thumbnail on tab close / browser unload
+    useEffect(() => {
+        if (!currentProject) return;
+        const id = currentProject.id;
+        const captureOnUnload = () => {
+            // capture exactly what we have right now in local state, not the global store which might have moved on
+            generateAndStoreThumbnail(id, nodes, edges).catch(() => {});
+        };
+        window.addEventListener('beforeunload', captureOnUnload);
+        // Also capture when React unmounts (navigation away inside the SPA)
+        return () => {
+            window.removeEventListener('beforeunload', captureOnUnload);
+            // Fire and forget on unmount
+            generateAndStoreThumbnail(id, nodes, edges).catch(() => {});
+        };
+    }, [currentProject, nodes, edges]);
+
+    const handleRename = useCallback((newTitle: string) => {
+        setProjectTitle(newTitle);
+        if (currentProject) {
+            updateProject(currentProject.id, { title: newTitle, updatedAt: new Date().toISOString() });
+        }
+    }, [currentProject, updateProject]);
+
     if (isLoading) {
         return (
             <div className="h-screen w-screen flex items-center justify-center bg-background">
@@ -255,9 +291,11 @@ export default function EditorPage({ params }: EditorPageProps) {
                 projectId={currentProject?.id ?? "new"}
                 projectTitle={projectTitle}
                 onSave={handleSave}
+                onRename={handleRename}
                 isSaving={isSaving}
             />
             <ShortcutsModal />
+            <ExportModal />
         </div>
     );
 }
