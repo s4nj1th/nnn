@@ -13,6 +13,7 @@ import { ThemeToggle } from "@/components/theme/theme-toggle";
 import { EXAMPLE_TEMPLATES } from "@/lib/templates";
 import { useAuthStore } from "@/store/auth-store";
 import { useUIStore } from "@/store/ui-store";
+import { useTheme } from "next-themes";
 import { generateAndStoreThumbnail, getStoredThumbnail } from "@/lib/thumbnail";
 import type { ExampleTemplate } from "@/types";
 import { cn } from "@/lib/utils";
@@ -27,10 +28,12 @@ const difficultyColors = {
 
 function ExampleThumbnailPreview({ template }: { template: ExampleTemplate }) {
     const [thumbnail, setThumbnail] = useState<string | null>(null);
+    const { resolvedTheme } = useTheme();
+    const isDark = resolvedTheme === "dark";
 
     useEffect(() => {
         let isMounted = true;
-        const cached = getStoredThumbnail(template.id);
+        const cached = getStoredThumbnail(template.id, isDark);
         if (cached) {
             setThumbnail(cached);
         } else {
@@ -38,7 +41,8 @@ function ExampleThumbnailPreview({ template }: { template: ExampleTemplate }) {
             generateAndStoreThumbnail(
                 template.id,
                 template.canvasState.nodes,
-                template.canvasState.edges
+                template.canvasState.edges,
+                isDark
             ).then((dataUrl) => {
                 if (isMounted && dataUrl) {
                     setThumbnail(dataUrl);
@@ -48,7 +52,7 @@ function ExampleThumbnailPreview({ template }: { template: ExampleTemplate }) {
         return () => {
             isMounted = false;
         };
-    }, [template]);
+    }, [template, isDark]);
 
     if (thumbnail) {
         // eslint-disable-next-line @next/next/no-img-element

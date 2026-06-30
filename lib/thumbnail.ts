@@ -72,8 +72,7 @@ export async function generateAndStoreThumbnail(
             const y2 = toY(tgt.position.y) + nh / 2;
             const w = e.data?.weight ?? 0;
 
-            ctx.strokeStyle =
-                w >= 0 ? "rgba(234,179,8,0.55)" : "rgba(239,68,68,0.55)";
+            ctx.strokeStyle = `${isDark ? "#fff5" : "#0005"}`;
             ctx.lineWidth = Math.max(0.5, Math.min(2.5, Math.abs(w) * 1.2));
             ctx.beginPath();
             ctx.moveTo(x1, y1);
@@ -104,29 +103,15 @@ export async function generateAndStoreThumbnail(
             ctx.stroke();
         });
 
-        // Subtle vignette overlay
-        const vignette = ctx.createRadialGradient(
-            THUMB_W / 2,
-            THUMB_H / 2,
-            THUMB_H * 0.2,
-            THUMB_W / 2,
-            THUMB_H / 2,
-            THUMB_H * 0.85,
-        );
-        vignette.addColorStop(0, "transparent");
-        vignette.addColorStop(
-            1,
-            isDark ? "rgba(0,0,0,0.4)" : "rgba(255,255,255,0.3)",
-        );
-        ctx.fillStyle = vignette;
-        ctx.fillRect(0, 0, THUMB_W, THUMB_H);
-
         // Try WebP first, fall back to PNG
         const dataUrl =
             canvas.toDataURL("image/webp", 0.85) ||
             canvas.toDataURL("image/png");
 
-        localStorage.setItem(`nnn.thumb.${projectId}`, dataUrl);
+        localStorage.setItem(
+            `nnn.thumb.${projectId}.${isDark ? "dark" : "light"}`,
+            dataUrl,
+        );
         return dataUrl;
     } catch (err) {
         console.warn("Failed to generate thumbnail", err);
@@ -135,10 +120,15 @@ export async function generateAndStoreThumbnail(
 }
 
 /** Read a cached thumbnail from localStorage. */
-export function getStoredThumbnail(projectId: string): string | null {
+export function getStoredThumbnail(
+    projectId: string,
+    isDark: boolean,
+): string | null {
     if (typeof window === "undefined") return null;
     try {
-        return localStorage.getItem(`nnn.thumb.${projectId}`);
+        return localStorage.getItem(
+            `nnn.thumb.${projectId}.${isDark ? "dark" : "light"}`,
+        );
     } catch {
         return null;
     }
@@ -148,7 +138,8 @@ export function getStoredThumbnail(projectId: string): string | null {
 export function removeStoredThumbnail(projectId: string) {
     if (typeof window === "undefined") return;
     try {
-        localStorage.removeItem(`nnn.thumb.${projectId}`);
+        localStorage.removeItem(`nnn.thumb.${projectId}.dark`);
+        localStorage.removeItem(`nnn.thumb.${projectId}.light`);
     } catch {
         // ignore
     }

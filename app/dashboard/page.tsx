@@ -25,6 +25,7 @@ import {
 import { useAuthStore } from "@/store/auth-store";
 import { useProjectStore } from "@/store/project-store";
 import { useUIStore } from "@/store/ui-store";
+import { useTheme } from "next-themes";
 import { getStoredThumbnail, removeStoredThumbnail } from "@/lib/thumbnail";
 import { formatRelativeTime } from "@/lib/utils";
 import type { Project } from "@/types";
@@ -42,10 +43,12 @@ function ProjectCard({
 }) {
     const [menuOpen, setMenuOpen] = useState(false);
     const [thumbnail, setThumbnail] = useState<string | null>(null);
+    const { resolvedTheme } = useTheme();
+    const isDark = resolvedTheme === "dark";
 
     useEffect(() => {
-        setThumbnail(getStoredThumbnail(project.id));
-    }, [project.id]);
+        setThumbnail(getStoredThumbnail(project.id, isDark));
+    }, [project.id, isDark]);
 
     return (
         <motion.div

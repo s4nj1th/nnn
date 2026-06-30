@@ -208,12 +208,9 @@ export default function EditorPage({ params }: EditorPageProps) {
                 throw new Error("Failed to save canvas state to localStorage");
             }
 
-            // Generate and store thumbnail (non-blocking, best-effort)
-            generateAndStoreThumbnail(
-                currentProject.id,
-                nodes,
-                edges,
-            ).catch(() => {/* ignore thumbnail failures */});
+            // Generate and store thumbnails for both light and dark modes (non-blocking)
+            generateAndStoreThumbnail(currentProject.id, nodes, edges, true).catch(() => {});
+            generateAndStoreThumbnail(currentProject.id, nodes, edges, false).catch(() => {});
 
             // Update project timestamp
             updateProject(currentProject.id, { updatedAt: new Date().toISOString() });
@@ -255,15 +252,17 @@ export default function EditorPage({ params }: EditorPageProps) {
         if (!currentProject) return;
         const id = currentProject.id;
         const captureOnUnload = () => {
-            // capture exactly what we have right now in local state, not the global store which might have moved on
-            generateAndStoreThumbnail(id, nodes, edges).catch(() => {});
+            // capture exactly what we have right now in local state for both modes
+            generateAndStoreThumbnail(id, nodes, edges, true).catch(() => {});
+            generateAndStoreThumbnail(id, nodes, edges, false).catch(() => {});
         };
         window.addEventListener('beforeunload', captureOnUnload);
         // Also capture when React unmounts (navigation away inside the SPA)
         return () => {
             window.removeEventListener('beforeunload', captureOnUnload);
-            // Fire and forget on unmount
-            generateAndStoreThumbnail(id, nodes, edges).catch(() => {});
+            // Fire and forget on unmount for both modes
+            generateAndStoreThumbnail(id, nodes, edges, true).catch(() => {});
+            generateAndStoreThumbnail(id, nodes, edges, false).catch(() => {});
         };
     }, [currentProject, nodes, edges]);
 
