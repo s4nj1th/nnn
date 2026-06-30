@@ -4,9 +4,9 @@ import { useState, useEffect, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { Play, Network, Brain, ChevronRight } from "lucide-react";
+import { Play, Network, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { BackButton } from "@/components/ui/back-button";
+
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { ThemeToggle } from "@/components/theme/theme-toggle";
@@ -42,7 +42,7 @@ function ExampleThumbnailPreview({ template }: { template: ExampleTemplate }) {
                 template.id,
                 template.canvasState.nodes,
                 template.canvasState.edges,
-                isDark
+                isDark,
             ).then((dataUrl) => {
                 if (isMounted && dataUrl) {
                     setThumbnail(dataUrl);
@@ -56,9 +56,15 @@ function ExampleThumbnailPreview({ template }: { template: ExampleTemplate }) {
 
     if (thumbnail) {
         // eslint-disable-next-line @next/next/no-img-element
-        return <img src={thumbnail} alt={template.title} className="w-full h-full object-cover" />;
+        return (
+            <img
+                src={thumbnail}
+                alt={template.title}
+                className="w-full h-full object-cover"
+            />
+        );
     }
-    
+
     return (
         <div className="absolute inset-0 flex items-center justify-center bg-surface">
             <Network className="w-20 h-20 text-primary/15 animate-pulse" />
@@ -181,7 +187,9 @@ function ExampleGallery() {
                             >
                                 {/* Preview */}
                                 <div className="relative h-40 border-b border-border overflow-hidden bg-surface">
-                                    <ExampleThumbnailPreview template={template} />
+                                    <ExampleThumbnailPreview
+                                        template={template}
+                                    />
 
                                     {/* Node count indicator */}
                                     <div className="absolute bottom-3 left-3 flex items-center gap-1.5">

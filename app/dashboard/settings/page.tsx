@@ -4,8 +4,7 @@ import { useState, useCallback } from "react";
 import { motion } from "framer-motion";
 import { useTheme } from "next-themes";
 import { Sun, Moon, Monitor, Save, User, Palette, Sliders } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+
 import { Switch } from "@/components/ui/switch";
 import { Separator } from "@/components/ui/separator";
 import {

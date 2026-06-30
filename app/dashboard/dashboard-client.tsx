@@ -9,25 +9,11 @@ import {
     LayoutDashboard,
     BookOpen,
     Settings,
-    LogOut,
     ChevronLeft,
     Plus,
-    User,
     ChevronRight,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Separator } from "@/components/ui/separator";
-import { ThemeToggle } from "@/components/theme/theme-toggle";
-import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuLabel,
-    DropdownMenuSeparator,
-    DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { useAuthStore } from "@/store/auth-store";
 import { cn } from "@/lib/utils";
 
 const navItems = [

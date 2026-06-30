@@ -106,7 +106,7 @@ export default function EditorPage({ params }: EditorPageProps) {
                 const draftProjectId = crypto.randomUUID();
 
                 setProjectTitle(initialTitle);
-                
+
                 const newProject = {
                     id: draftProjectId,
                     userId: user.id,
@@ -125,9 +125,15 @@ export default function EditorPage({ params }: EditorPageProps) {
                     addProject(newProject);
 
                     try {
-                        localStorage.setItem(`nnn.canvas_state.${draftProjectId}`, JSON.stringify(initialCanvas));
+                        localStorage.setItem(
+                            `nnn.canvas_state.${draftProjectId}`,
+                            JSON.stringify(initialCanvas),
+                        );
                     } catch (e) {
-                        console.error("Failed to save canvas state to localStorage", e);
+                        console.error(
+                            "Failed to save canvas state to localStorage",
+                            e,
+                        );
                     }
 
                     if (!cancelled) {
@@ -141,7 +147,9 @@ export default function EditorPage({ params }: EditorPageProps) {
                 })();
             } else {
                 // Load existing project
-                const project = useProjectStore.getState().projects.find(p => p.id === projectId);
+                const project = useProjectStore
+                    .getState()
+                    .projects.find((p) => p.id === projectId);
 
                 if (!project) {
                     addToast({ type: "error", title: "Project not found" });
@@ -154,12 +162,17 @@ export default function EditorPage({ params }: EditorPageProps) {
 
                 let canvasState = DEFAULT_CANVAS;
                 try {
-                    const canvasDataStr = localStorage.getItem(`nnn.canvas_state.${projectId}`);
+                    const canvasDataStr = localStorage.getItem(
+                        `nnn.canvas_state.${projectId}`,
+                    );
                     if (canvasDataStr) {
                         canvasState = JSON.parse(canvasDataStr);
                     }
                 } catch (e) {
-                    console.error("Failed to parse canvas state from localStorage", e);
+                    console.error(
+                        "Failed to parse canvas state from localStorage",
+                        e,
+                    );
                 }
 
                 loadCanvasState(canvasState);
@@ -203,17 +216,32 @@ export default function EditorPage({ params }: EditorPageProps) {
             };
 
             try {
-                localStorage.setItem(`nnn.canvas_state.${currentProject.id}`, JSON.stringify(canvasState));
+                localStorage.setItem(
+                    `nnn.canvas_state.${currentProject.id}`,
+                    JSON.stringify(canvasState),
+                );
             } catch (e) {
                 throw new Error("Failed to save canvas state to localStorage");
             }
 
             // Generate and store thumbnails for both light and dark modes (non-blocking)
-            generateAndStoreThumbnail(currentProject.id, nodes, edges, true).catch(() => {});
-            generateAndStoreThumbnail(currentProject.id, nodes, edges, false).catch(() => {});
+            generateAndStoreThumbnail(
+                currentProject.id,
+                nodes,
+                edges,
+                true,
+            ).catch(() => {});
+            generateAndStoreThumbnail(
+                currentProject.id,
+                nodes,
+                edges,
+                false,
+            ).catch(() => {});
 
             // Update project timestamp
-            updateProject(currentProject.id, { updatedAt: new Date().toISOString() });
+            updateProject(currentProject.id, {
+                updatedAt: new Date().toISOString(),
+            });
 
             markSaved();
             addToast({ type: "success", title: "Saved", duration: 1500 });
@@ -256,22 +284,28 @@ export default function EditorPage({ params }: EditorPageProps) {
             generateAndStoreThumbnail(id, nodes, edges, true).catch(() => {});
             generateAndStoreThumbnail(id, nodes, edges, false).catch(() => {});
         };
-        window.addEventListener('beforeunload', captureOnUnload);
+        window.addEventListener("beforeunload", captureOnUnload);
         // Also capture when React unmounts (navigation away inside the SPA)
         return () => {
-            window.removeEventListener('beforeunload', captureOnUnload);
+            window.removeEventListener("beforeunload", captureOnUnload);
             // Fire and forget on unmount for both modes
             generateAndStoreThumbnail(id, nodes, edges, true).catch(() => {});
             generateAndStoreThumbnail(id, nodes, edges, false).catch(() => {});
         };
     }, [currentProject, nodes, edges]);
 
-    const handleRename = useCallback((newTitle: string) => {
-        setProjectTitle(newTitle);
-        if (currentProject) {
-            updateProject(currentProject.id, { title: newTitle, updatedAt: new Date().toISOString() });
-        }
-    }, [currentProject, updateProject]);
+    const handleRename = useCallback(
+        (newTitle: string) => {
+            setProjectTitle(newTitle);
+            if (currentProject) {
+                updateProject(currentProject.id, {
+                    title: newTitle,
+                    updatedAt: new Date().toISOString(),
+                });
+            }
+        },
+        [currentProject, updateProject],
+    );
 
     if (isLoading) {
         return (
