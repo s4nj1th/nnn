@@ -47,14 +47,9 @@ function Navbar() {
 
                 <div className={styles.navActions}>
                     <ThemeToggle />
-                    <Link href="/login">
-                        <Button variant="ghost" size="sm">
-                            Sign in
-                        </Button>
-                    </Link>
-                    <Link href="/signup">
+                    <Link href="/dashboard">
                         <Button variant="default" size="sm">
-                            Start Building
+                            Go to Dashboard
                         </Button>
                     </Link>
                 </div>
@@ -95,7 +90,7 @@ export default function LandingPage() {
                         transition={{ duration: 0.5, delay: 0.2 }}
                         className={styles.heroActions}
                     >
-                        <Link href="/signup">
+                        <Link href="/dashboard">
                             <Button
                                 variant="default"
                                 size="lg"

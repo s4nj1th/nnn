@@ -17,7 +17,6 @@ import {
 } from "@/components/ui/card";
 import { useAuthStore } from "@/store/auth-store";
 import { useUIStore } from "@/store/ui-store";
-import { createClient } from "@/lib/supabase/client";
 import { cn } from "@/lib/utils";
 import type { AccentColor, Theme } from "@/types";
 
@@ -51,46 +50,26 @@ export default function SettingsPage() {
             if (!settings) return;
             const merged = { ...settings, ...updates };
             setSettings(merged);
-
-            if (!user) return;
-            const supabase = createClient();
-            await supabase
-                .from("users")
-                .update({
-                    accent_color: merged.accentColor,
-                    grid_visible: merged.gridVisible,
-                    grid_density: merged.gridDensity,
-                    animations_enabled: merged.animationsEnabled,
-                })
-                .eq("id", user.id);
         },
-        [settings, user, setSettings],
+        [settings, setSettings],
     );
 
     const handleThemeChange = useCallback(
         async (newTheme: Theme) => {
             setTheme(newTheme);
-            if (!user) return;
-            const supabase = createClient();
-            await supabase
-                .from("users")
-                .update({ theme: newTheme })
-                .eq("id", user.id);
         },
-        [user, setTheme],
+        [setTheme],
     );
 
     const handleSaveProfile = async () => {
-        if (!user) return;
         setIsSaving(true);
         try {
-            const supabase = createClient();
-            const { error } = await supabase
-                .from("users")
-                .update({ username })
-                .eq("id", user.id);
-            if (error) throw error;
-            addToast({ type: "success", title: "Profile saved" });
+            // Local only profile saving is not fully supported without a local profile store mechanism, 
+            // but we can just pretend to save or update the store.
+            useAuthStore.setState((state) => ({
+                profile: state.profile ? { ...state.profile, username } : null
+            }));
+            addToast({ type: "success", title: "Profile saved locally" });
         } catch {
             addToast({ type: "error", title: "Failed to save profile" });
         } finally {

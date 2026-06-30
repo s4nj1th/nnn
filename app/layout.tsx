@@ -3,7 +3,6 @@ import { GeistSans } from "geist/font/sans";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme/theme-provider";
 import { ThemeSync } from "@/components/theme/theme-sync";
-import { AuthProvider } from "@/features/auth/auth-provider";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { ToastContainer } from "@/components/ui/toast";
 
@@ -46,11 +45,9 @@ export default function RootLayout({
                     disableTransitionOnChange={false}
                 >
                     <TooltipProvider delayDuration={300}>
-                        <AuthProvider>
-                            <ThemeSync />
-                            {children}
-                            <ToastContainer />
-                        </AuthProvider>
+                        <ThemeSync />
+                        {children}
+                        <ToastContainer />
                     </TooltipProvider>
                 </ThemeProvider>
             </body>

@@ -9,7 +9,6 @@ import { useCanvasStore } from "@/store/canvas-store";
 import { useProjectStore } from "@/store/project-store";
 import { useAuthStore } from "@/store/auth-store";
 import { useUIStore } from "@/store/ui-store";
-import { createClient } from "@/lib/supabase/client";
 import type { CanvasState } from "@/types";
 
 const PENDING_TEMPLATE_KEY = "nnn.pending-example-template";
@@ -54,7 +53,10 @@ export default function EditorPage({ params }: EditorPageProps) {
         settings,
         layers,
     } = useCanvasStore();
-    const { setCurrentProject, currentProject } = useProjectStore();
+    const addProject = useProjectStore((s) => s.addProject);
+    const updateProject = useProjectStore((s) => s.updateProject);
+    const setCurrentProject = useProjectStore((s) => s.setCurrentProject);
+    const currentProject = useProjectStore((s) => s.currentProject);
     const { addToast } = useUIStore();
     const creationPromiseRef = useRef<Promise<boolean> | null>(null);
     const [isLoading, setIsLoading] = useState(true);
@@ -66,15 +68,12 @@ export default function EditorPage({ params }: EditorPageProps) {
     // Load or create project
     useEffect(() => {
         if (!user) {
-            router.push("/login");
             return;
         }
 
         let cancelled = false;
 
         const load = async () => {
-            const supabase = createClient();
-
             if (isNewProject) {
                 let pendingTemplate: {
                     title?: string;
@@ -89,6 +88,8 @@ export default function EditorPage({ params }: EditorPageProps) {
                     pendingTemplate = rawTemplate
                         ? JSON.parse(rawTemplate)
                         : null;
+                    // Don't remove it here or below, otherwise StrictMode second pass will get null
+                    // and create a blank project. We'll let it stay. It will just be overwritten next time.
                 } catch {
                     pendingTemplate = null;
                 }
@@ -100,7 +101,8 @@ export default function EditorPage({ params }: EditorPageProps) {
                 const draftProjectId = crypto.randomUUID();
 
                 setProjectTitle(initialTitle);
-                setCurrentProject({
+                
+                const newProject = {
                     id: draftProjectId,
                     userId: user.id,
                     title: initialTitle,
@@ -109,58 +111,32 @@ export default function EditorPage({ params }: EditorPageProps) {
                     isPublic: false,
                     createdAt: new Date().toISOString(),
                     updatedAt: new Date().toISOString(),
-                });
+                };
+                setCurrentProject(newProject);
                 loadCanvasState(initialCanvas);
                 setIsLoading(false);
 
                 creationPromiseRef.current = (async () => {
-                    const { data: project, error } = await supabase
-                        .from("projects")
-                        .insert({
-                            id: draftProjectId,
-                            user_id: user.id,
-                            title: initialTitle,
-                            description: pendingTemplate?.description,
-                            thumbnail: pendingTemplate?.thumbnail,
-                        })
-                        .select()
-                        .single();
-
-                    if (error || !project) throw error;
-
-                    await supabase.from("project_data").insert({
-                        project_id: project.id,
-                        canvas_state: initialCanvas,
-                    });
-
-                    if (!cancelled) {
-                        router.replace(`/editor/${project.id}`);
-                    }
+                    addProject(newProject);
 
                     try {
-                        sessionStorage.removeItem(PENDING_TEMPLATE_KEY);
-                    } catch {
-                        // Ignore storage cleanup errors.
+                        localStorage.setItem(`nnn.canvas_state.${draftProjectId}`, JSON.stringify(initialCanvas));
+                    } catch (e) {
+                        console.error("Failed to save canvas state to localStorage", e);
                     }
 
-                    return true;
-                })().catch(() => {
                     if (!cancelled) {
-                        addToast({
-                            type: "error",
-                            title: "Failed to create project",
-                        });
-                        router.push("/dashboard");
+                        router.replace(`/editor/${draftProjectId}`);
                     }
-                    return false;
-                });
+
+                    // Removed sessionStorage cleanup here to prevent StrictMode bugs.
+                    // It's safe to leave PENDING_TEMPLATE_KEY since it's only read when explicitly navigating to /editor/new.
+
+                    return true;
+                })();
             } else {
                 // Load existing project
-                const { data: project } = await supabase
-                    .from("projects")
-                    .select("*")
-                    .eq("id", projectId)
-                    .single();
+                const project = useProjectStore.getState().projects.find(p => p.id === projectId);
 
                 if (!project) {
                     addToast({ type: "error", title: "Project not found" });
@@ -168,26 +144,20 @@ export default function EditorPage({ params }: EditorPageProps) {
                     return;
                 }
 
-                const { data: canvasData } = await supabase
-                    .from("project_data")
-                    .select("canvas_state")
-                    .eq("project_id", projectId)
-                    .single();
-
                 setProjectTitle(project.title);
-                setCurrentProject({
-                    id: project.id,
-                    userId: project.user_id,
-                    title: project.title,
-                    description: project.description,
-                    thumbnail: project.thumbnail,
-                    isPublic: project.is_public,
-                    createdAt: project.created_at,
-                    updatedAt: project.updated_at,
-                });
+                setCurrentProject(project);
 
-                const state = canvasData?.canvas_state ?? DEFAULT_CANVAS;
-                loadCanvasState(state as CanvasState);
+                let canvasState = DEFAULT_CANVAS;
+                try {
+                    const canvasDataStr = localStorage.getItem(`nnn.canvas_state.${projectId}`);
+                    if (canvasDataStr) {
+                        canvasState = JSON.parse(canvasDataStr);
+                    }
+                } catch (e) {
+                    console.error("Failed to parse canvas state from localStorage", e);
+                }
+
+                loadCanvasState(canvasState);
                 if (!cancelled) {
                     setIsLoading(false);
                 }
@@ -218,7 +188,6 @@ export default function EditorPage({ params }: EditorPageProps) {
                 if (!created) return;
             }
 
-            const supabase = createClient();
             const canvasState: CanvasState = {
                 nodes,
                 edges,
@@ -228,20 +197,14 @@ export default function EditorPage({ params }: EditorPageProps) {
                 layers,
             };
 
-            const { error } = await supabase
-                .from("project_data")
-                .upsert({
-                    project_id: currentProject.id,
-                    canvas_state: canvasState,
-                });
-
-            if (error) throw error;
+            try {
+                localStorage.setItem(`nnn.canvas_state.${currentProject.id}`, JSON.stringify(canvasState));
+            } catch (e) {
+                throw new Error("Failed to save canvas state to localStorage");
+            }
 
             // Update project timestamp
-            await supabase
-                .from("projects")
-                .update({ updated_at: new Date().toISOString() })
-                .eq("id", currentProject.id);
+            updateProject(currentProject.id, { updatedAt: new Date().toISOString() });
 
             markSaved();
             addToast({ type: "success", title: "Saved", duration: 1500 });
@@ -263,6 +226,7 @@ export default function EditorPage({ params }: EditorPageProps) {
         layers,
         markSaved,
         addToast,
+        updateProject,
     ]);
 
     // Autosave every 30s when dirty

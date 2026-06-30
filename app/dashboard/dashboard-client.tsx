@@ -29,7 +29,6 @@ import {
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useAuthStore } from "@/store/auth-store";
-import { createClient } from "@/lib/supabase/client";
 import { cn } from "@/lib/utils";
 
 const navItems = [
@@ -50,11 +49,12 @@ function SidebarNav({
     const router = useRouter();
     const { user, profile } = useAuthStore();
 
-    const handleSignOut = async () => {
-        const supabase = createClient();
-        await supabase.auth.signOut();
-        router.push("/");
-        router.refresh();
+    const handleReset = () => {
+        if (confirm("Are you sure you want to clear all data? This cannot be undone.")) {
+            localStorage.clear();
+            sessionStorage.clear();
+            window.location.href = "/";
+        }
     };
 
     const initials = profile?.username
@@ -121,9 +121,8 @@ function SidebarNav({
                 )}
             </div>
 
-            {/* New project button */}
             <div className="p-2">
-                <Link href="/editor/new">
+                <Link href="/editor/new" onClick={() => sessionStorage.removeItem("nnn.pending-example-template")}>
                     <Button
                         variant="accent"
                         size={collapsed ? "icon-sm" : "sm"}
@@ -223,13 +222,12 @@ function SidebarNav({
                             </Link>
                         </DropdownMenuItem>
                         <ThemeToggle />
-                        <DropdownMenuSeparator />
                         <DropdownMenuItem
-                            onClick={handleSignOut}
+                            onClick={handleReset}
                             destructive
                             className="gap-2 cursor-pointer"
                         >
-                            <LogOut className="h-4 w-4" /> Sign out
+                            <LogOut className="h-4 w-4" /> Clear All Data
                         </DropdownMenuItem>
                     </DropdownMenuContent>
                 </DropdownMenu>

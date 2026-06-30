@@ -38,7 +38,6 @@ import {
 import { useAuthStore } from "@/store/auth-store";
 import { useProjectStore } from "@/store/project-store";
 import { useUIStore } from "@/store/ui-store";
-import { createClient } from "@/lib/supabase/client";
 import { formatRelativeTime } from "@/lib/utils";
 import type { Project } from "@/types";
 import styles from "./page.module.css";
@@ -192,7 +191,7 @@ function EmptyState({ hasSearch }: { hasSearch: boolean }) {
                     : "Create your first neural network project to get started."}
             </p>
             {!hasSearch && (
-                <Link href="/editor/new">
+                <Link href="/editor/new" onClick={() => sessionStorage.removeItem("nnn.pending-example-template")}>
                     <Button
                         variant="accent"
                         size="sm"
@@ -221,56 +220,23 @@ export default function DashboardPage() {
         getFilteredProjects,
     } = useProjectStore();
     const { addToast } = useUIStore();
-    const [isLoading, setIsLoading] = useState(true);
+    const [isLoading, setIsLoading] = useState(false); // Zustand loads it immediately
     const [deleteId, setDeleteId] = useState<string | null>(null);
     const [isDeleting, setIsDeleting] = useState(false);
 
-    const loadProjects = useCallback(async () => {
-        if (!user) return;
-        setIsLoading(true);
-        try {
-            const supabase = createClient();
-            const { data, error } = await supabase
-                .from("projects")
-                .select("*")
-                .eq("user_id", user.id)
-                .order("updated_at", { ascending: false });
-
-            if (error) throw error;
-            setProjects(
-                (data ?? []).map((p) => ({
-                    id: p.id,
-                    userId: p.user_id,
-                    title: p.title,
-                    description: p.description,
-                    thumbnail: p.thumbnail,
-                    isPublic: p.is_public,
-                    createdAt: p.created_at,
-                    updatedAt: p.updated_at,
-                })),
-            );
-        } catch {
-            addToast({ type: "error", title: "Failed to load projects" });
-        } finally {
-            setIsLoading(false);
-        }
-    }, [user, setProjects, addToast]);
-
+    // Wait for Zustand rehydration if necessary, but persist usually is sync for localStorage.
+    // We can just use an effect to mark as loaded.
     useEffect(() => {
-        void loadProjects();
-    }, [loadProjects]);
+        setIsLoading(false);
+    }, []);
 
     const handleDelete = async () => {
         if (!deleteId) return;
         setIsDeleting(true);
         try {
-            const supabase = createClient();
-            const { error } = await supabase
-                .from("projects")
-                .delete()
-                .eq("id", deleteId);
-            if (error) throw error;
             removeProject(deleteId);
+            // Also remove canvas state from local storage
+            localStorage.removeItem(`nnn.canvas_state.${deleteId}`);
             addToast({ type: "success", title: "Project deleted" });
         } catch {
             addToast({ type: "error", title: "Failed to delete project" });
@@ -284,46 +250,27 @@ export default function DashboardPage() {
         const original = projects.find((p) => p.id === id);
         if (!original || !user) return;
         try {
-            const supabase = createClient();
-
+            const newId = crypto.randomUUID();
+            
             // Create duplicate project
-            const { data: newProject, error: projError } = await supabase
-                .from("projects")
-                .insert({
-                    user_id: user.id,
-                    title: `${original.title} (Copy)`,
-                    description: original.description,
-                    is_public: false,
-                })
-                .select()
-                .single();
-
-            if (projError || !newProject) throw projError;
+            const newProject: Project = {
+                id: newId,
+                userId: user.id,
+                title: `${original.title} (Copy)`,
+                description: original.description,
+                isPublic: false,
+                thumbnail: original.thumbnail,
+                createdAt: new Date().toISOString(),
+                updatedAt: new Date().toISOString(),
+            };
 
             // Copy canvas data
-            const { data: originalData } = await supabase
-                .from("project_data")
-                .select("canvas_state")
-                .eq("project_id", id)
-                .single();
-
-            if (originalData) {
-                await supabase.from("project_data").insert({
-                    project_id: newProject.id,
-                    canvas_state: originalData.canvas_state,
-                });
+            const originalDataStr = localStorage.getItem(`nnn.canvas_state.${id}`);
+            if (originalDataStr) {
+                localStorage.setItem(`nnn.canvas_state.${newId}`, originalDataStr);
             }
 
-            addProject({
-                id: newProject.id,
-                userId: newProject.user_id,
-                title: newProject.title,
-                description: newProject.description,
-                thumbnail: newProject.thumbnail,
-                isPublic: newProject.is_public,
-                createdAt: newProject.created_at,
-                updatedAt: newProject.updated_at,
-            });
+            addProject(newProject);
             addToast({ type: "success", title: "Project duplicated" });
             router.push(`/editor/${newProject.id}`);
         } catch {
@@ -366,7 +313,7 @@ export default function DashboardPage() {
                         aria-label="Search projects"
                     />
                 </div>
-                <Link href="/editor/new">
+                <Link href="/editor/new" onClick={() => sessionStorage.removeItem("nnn.pending-example-template")}>
                     <Button
                         variant="accent"
                         size="sm"
