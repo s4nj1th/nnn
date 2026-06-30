@@ -72,35 +72,6 @@ function ExampleGallery() {
 
     return (
         <div className="nnn-static-page">
-            {/* Header */}
-            <header className="nnn-static-header">
-                <div className="nnn-static-header-inner max-w-7xl">
-                    <div className="nnn-static-header-left">
-                        <BackButton href="/" />
-                        <div className="nnn-static-header-title">
-                            <Brain className="h-4 w-4 text-primary" />
-                            <span>Example Templates</span>
-                        </div>
-                    </div>
-                    <div className="nnn-static-header-actions">
-                        <ThemeToggle />
-                        {user ? (
-                            <Link href="/dashboard">
-                                <Button variant="outline" size="sm">
-                                    Dashboard
-                                </Button>
-                            </Link>
-                        ) : (
-                            <Link href="/signup">
-                                <Button variant="accent" size="sm">
-                                    Start Free
-                                </Button>
-                            </Link>
-                        )}
-                    </div>
-                </div>
-            </header>
-
             <main className="mx-auto max-w-7xl px-6 py-12">
                 {/* Page header */}
                 <div className="mb-10 text-center">

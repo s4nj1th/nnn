@@ -32,7 +32,7 @@ function Navbar() {
                 </Link>
 
                 <div className={styles.navLinks}>
-                    <Link href="/examples" className={styles.navLink}>
+                    <Link href="/dashboard/examples" className={styles.navLink}>
                         Examples
                     </Link>
                     <a
@@ -99,7 +99,7 @@ export default function LandingPage() {
                                 Get Started
                             </Button>
                         </Link>
-                        <Link href="/examples">
+                        <Link href="/dashboard/examples">
                             <Button
                                 variant="outline"
                                 size="lg"
@@ -188,15 +188,6 @@ export default function LandingPage() {
                     </div>
 
                     <div className={styles.footerLinks}>
-                        <Link href="/docs" className={styles.footerLink}>
-                            Documentation
-                        </Link>
-                        <Link href="/privacy" className={styles.footerLink}>
-                            Privacy
-                        </Link>
-                        <Link href="/terms" className={styles.footerLink}>
-                            Terms
-                        </Link>
                         <a
                             href="https://github.com/s4nj1th/nnn"
                             target="_blank"

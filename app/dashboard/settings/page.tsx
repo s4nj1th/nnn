@@ -20,14 +20,6 @@ import { useUIStore } from "@/store/ui-store";
 import { cn } from "@/lib/utils";
 import type { AccentColor, Theme } from "@/types";
 
-const ACCENT_COLORS: { value: AccentColor; label: string; hex: string }[] = [
-    { value: "yellow", label: "Yellow", hex: "#FFD60A" },
-    { value: "blue", label: "Blue", hex: "#3B82F6" },
-    { value: "purple", label: "Purple", hex: "#8B5CF6" },
-    { value: "green", label: "Green", hex: "#22C55E" },
-    { value: "orange", label: "Orange", hex: "#F97316" },
-];
-
 const THEME_OPTIONS: {
     value: Theme;
     label: string;
@@ -40,7 +32,6 @@ const THEME_OPTIONS: {
 
 export default function SettingsPage() {
     const { user, profile, settings, setSettings } = useAuthStore();
-    const { addToast } = useUIStore();
     const { theme, setTheme } = useTheme();
     const [isSaving, setIsSaving] = useState(false);
     const [username, setUsername] = useState(profile?.username ?? "");
@@ -61,22 +52,6 @@ export default function SettingsPage() {
         [setTheme],
     );
 
-    const handleSaveProfile = async () => {
-        setIsSaving(true);
-        try {
-            // Local only profile saving is not fully supported without a local profile store mechanism, 
-            // but we can just pretend to save or update the store.
-            useAuthStore.setState((state) => ({
-                profile: state.profile ? { ...state.profile, username } : null
-            }));
-            addToast({ type: "success", title: "Profile saved locally" });
-        } catch {
-            addToast({ type: "error", title: "Failed to save profile" });
-        } finally {
-            setIsSaving(false);
-        }
-    };
-
     return (
         <div className="p-6 md:p-8 max-w-2xl mx-auto">
             <motion.div
@@ -91,43 +66,6 @@ export default function SettingsPage() {
                 </p>
 
                 <div className="space-y-6">
-                    {/* Profile */}
-                    <Card>
-                        <CardHeader>
-                            <div className="flex items-center gap-2">
-                                <User className="h-4 w-4 text-muted-foreground" />
-                                <CardTitle>Profile</CardTitle>
-                            </div>
-                            <CardDescription>
-                                Update your display name and email
-                            </CardDescription>
-                        </CardHeader>
-                        <CardContent className="space-y-4">
-                            <Input
-                                label="Username"
-                                value={username}
-                                onChange={(e) => setUsername(e.target.value)}
-                                placeholder="your_username"
-                            />
-                            <Input
-                                label="Email"
-                                value={user?.email ?? ""}
-                                disabled
-                                hint="Email cannot be changed"
-                            />
-                            <Button
-                                variant="default"
-                                size="sm"
-                                onClick={handleSaveProfile}
-                                isLoading={isSaving}
-                                className="gap-2"
-                            >
-                                {!isSaving && <Save className="h-4 w-4" />}
-                                Save Profile
-                            </Button>
-                        </CardContent>
-                    </Card>
-
                     {/* Appearance */}
                     <Card>
                         <CardHeader>
@@ -169,37 +107,6 @@ export default function SettingsPage() {
                             </div>
 
                             <Separator />
-
-                            {/* Accent color */}
-                            <div>
-                                <label className="text-sm font-medium text-foreground block mb-3">
-                                    Accent Color
-                                </label>
-                                <div className="flex gap-2 flex-wrap">
-                                    {ACCENT_COLORS.map(
-                                        ({ value, label, hex }) => (
-                                            <button
-                                                key={value}
-                                                onClick={() =>
-                                                    updateSetting({
-                                                        accentColor: value,
-                                                    })
-                                                }
-                                                title={label}
-                                                aria-label={`Set accent color to ${label}`}
-                                                className={cn(
-                                                    "w-8 h-8 rounded-full border-2 transition-all duration-150 nnn-accent-button",
-                                                    `nnn-accent-${value}`,
-                                                    settings?.accentColor ===
-                                                        value
-                                                        ? "border-foreground scale-110"
-                                                        : "border-transparent hover:scale-105",
-                                                )}
-                                            />
-                                        ),
-                                    )}
-                                </div>
-                            </div>
                         </CardContent>
                     </Card>
 

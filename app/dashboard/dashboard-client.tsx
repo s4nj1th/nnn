@@ -34,7 +34,7 @@ import { cn } from "@/lib/utils";
 const navItems = [
     { href: "/dashboard", icon: LayoutDashboard, label: "Dashboard" },
     { href: "/dashboard/projects", icon: FolderOpen, label: "Projects" },
-    { href: "/examples", icon: BookOpen, label: "Examples" },
+    { href: "/dashboard/examples", icon: BookOpen, label: "Examples" },
     { href: "/dashboard/settings", icon: Settings, label: "Settings" },
 ];
 
@@ -50,7 +50,11 @@ function SidebarNav({
     const { user, profile } = useAuthStore();
 
     const handleReset = () => {
-        if (confirm("Are you sure you want to clear all data? This cannot be undone.")) {
+        if (
+            confirm(
+                "Are you sure you want to clear all data? This cannot be undone.",
+            )
+        ) {
             localStorage.clear();
             sessionStorage.clear();
             window.location.href = "/";
@@ -122,7 +126,14 @@ function SidebarNav({
             </div>
 
             <div className="p-2">
-                <Link href="/editor/new" onClick={() => sessionStorage.removeItem("nnn.pending-example-template")}>
+                <Link
+                    href="/editor/new"
+                    onClick={() =>
+                        sessionStorage.removeItem(
+                            "nnn.pending-example-template",
+                        )
+                    }
+                >
                     <Button
                         variant="accent"
                         size={collapsed ? "icon-sm" : "sm"}
