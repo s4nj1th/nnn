@@ -118,12 +118,12 @@ export default function LandingPage() {
                         className={styles.screenshotPlaceholder}
                     >
                         <img
-                            src="/screenshot-light.png"
+                            src="/screenshot-01-light.png"
                             alt="App screenshot"
                             className={`${styles.screenshotImage} block dark:hidden`}
                         />
                         <img
-                            src="/screenshot-dark.png"
+                            src="/screenshot-01-dark.png"
                             alt="App screenshot"
                             className={`${styles.screenshotImage} hidden dark:block`}
                         />
